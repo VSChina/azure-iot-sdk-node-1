@@ -195,7 +195,7 @@ describe('AmqpMessage', function () {
       assert.property(amqpMessage.messageAnnotations, 'Correlation-Context');
     });
 
-    /*Tests_SRS_NODE_IOTHUB_AMQPMSG_26_002: [If diagnosticPropertyData is falsy, the AmqpMessage object shall set message annotation of diagnostic properties.]*/
+    /*Tests_SRS_NODE_IOTHUB_AMQPMSG_26_002: [If diagnosticPropertyData is falsy, the AmqpMessage object shall not set message annotation of diagnostic properties.]*/
     it('does not set annotation if message does not contain diagnostic property data', function () {
       let fakeMessage = new Message();
       var amqpMessage = AmqpMessage.fromMessage(fakeMessage);

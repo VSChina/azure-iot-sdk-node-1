@@ -8,7 +8,7 @@ import { Message, errors } from 'azure-iot-common';
 /**
  * Handling device client diagnostic information.
  */
-export class ClientDiagnostic {
+export class DiagnosticClient {
   // The base of diagnostic id character. 0-9a-zA-Z is 62.
   static DIAGNOSTIC_ID_CHARACTER_BASE: number = 62;
 
@@ -26,7 +26,7 @@ export class ClientDiagnostic {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnostic.getDiagSamplingPercentage
+   * @method            module:azure-iot-device.DiagnosticClient.getDiagSamplingPercentage
    * @description       get the diagnostic sampling percentage.
    *
    * @returns {number}
@@ -36,7 +36,7 @@ export class ClientDiagnostic {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnostic.setDiagSamplingPercentage
+   * @method            module:azure-iot-device.DiagnosticClient.setDiagSamplingPercentage
    * @description       set the diagnostic sampling percentage.
    *
    * @param {number}   diagSamplingPercentage   The value of sampling percentage.
@@ -45,6 +45,9 @@ export class ClientDiagnostic {
   setDiagSamplingPercentage(diagSamplingPercentage: number): void {
     if(typeof diagSamplingPercentage !== 'number') {
       throw new errors.ArgumentError('Sampling percentage only accept number');
+    }
+    if(diagSamplingPercentage % 1 !== 0) {
+      throw new errors.ArgumentError('Sampling percentage should be integer');
     }
     // Codes_SRS_DEVICECLIENTDIAGNOSTIC_01_003: [When percentage is less than 0 or larger than 100, throw IllegalArgumentException.]
     if (diagSamplingPercentage < 0 || diagSamplingPercentage > 100) {
@@ -56,14 +59,14 @@ export class ClientDiagnostic {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnostic.addDiagnosticInfoIfNecessary
+   * @method            module:azure-iot-device.DiagnosticClient.addDiagnosticInfoIfNecessary
    * @description       add the diagnostic info
    *
    * @param {Message}   message   The message
    */
   addDiagnosticInfoIfNecessary(message: Message): void {
     if (this.shouldAddDiagnosticInfo()) {
-      let diagnosticPropertyData: ClientDiagnosticPropertyData = new ClientDiagnosticPropertyData(this.generateEightRandomCharacters(), this.getCurrentTimeUtc());
+      let diagnosticPropertyData: DiagnosticPropertyData = new DiagnosticPropertyData(this.generateEightRandomCharacters(), this.getCurrentTimeUtc());
       message.diagnosticPropertyData = diagnosticPropertyData;
     }
   }
@@ -86,7 +89,7 @@ export class ClientDiagnostic {
     // Codes_SRS_DEVICECLIENTDIAGNOSTIC_01_005: [This function shall generate 8 random chars, each is from 0-9a-z.]
     let result: string = "";
     for (let i = 0; i < 8; i++) {
-      let randomNum: number = Math.floor(Math.random() * ClientDiagnostic.DIAGNOSTIC_ID_CHARACTER_BASE);
+      let randomNum: number = Math.floor(Math.random() * DiagnosticClient.DIAGNOSTIC_ID_CHARACTER_BASE);
       result += this.getDiagnosticIdChar(randomNum);
     }
     return result.toString();
@@ -116,7 +119,7 @@ export class ClientDiagnostic {
 /**
  * Data structure to store diagnostic property data
  */
-export class ClientDiagnosticPropertyData {
+export class DiagnosticPropertyData {
   // Key of creation time in diagnostic context.
   static DIAGNOSTIC_CONTEXT_CREATION_TIME_UTC_PROPERTY: string = "creationtimeutc";
   // Equal symbol in diagnostic context.
@@ -142,7 +145,7 @@ export class ClientDiagnosticPropertyData {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnosticPropertyData.getDiagnosticId
+   * @method            module:azure-iot-device.DiagnosticPropertyData.getDiagnosticId
    * @description       get the diagnostic id.
    *
    * @returns {string}
@@ -152,7 +155,7 @@ export class ClientDiagnosticPropertyData {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnosticPropertyData.setDiagnosticId
+   * @method            module:azure-iot-device.DiagnosticPropertyData.setDiagnosticId
    * @description       set the diagnostic id.
    * @param {string}    diagnosticId   The value of diagnostic id.
    * @throws {ArgumentError}    If value is invalid
@@ -166,7 +169,7 @@ export class ClientDiagnosticPropertyData {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnosticPropertyData.getDiagnosticCreationTimeUtc
+   * @method            module:azure-iot-device.DiagnosticPropertyData.getDiagnosticCreationTimeUtc
    * @description       get the diagnostic creation timestamp.
    *
    * @returns {string}
@@ -176,7 +179,7 @@ export class ClientDiagnosticPropertyData {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnosticPropertyData.setDiagnosticCreationTimeUtc
+   * @method            module:azure-iot-device.DiagnosticPropertyData.setDiagnosticCreationTimeUtc
    * @description       set the diagnostic creation timestamp.
    * @param {string}    diagnosticId   The value of diagnostic creation timestamp.
    * @throws {ArgumentError}    If value is invalid
@@ -190,13 +193,13 @@ export class ClientDiagnosticPropertyData {
   }
 
   /**
-   * @method            module:azure-iot-device.ClientDiagnosticPropertyData.getCorrelationContext
+   * @method            module:azure-iot-device.DiagnosticPropertyData.getCorrelationContext
    * @description       get the diagnostic correlation context..
    *
    * @returns {string}
    */
   /* Codes_SRS_DIAGNOSTICPROPERTYDATA_01_005: [The function shall return concat string of all correlation contexts.] */
   public getCorrelationContext(): string {
-    return ClientDiagnosticPropertyData.DIAGNOSTIC_CONTEXT_CREATION_TIME_UTC_PROPERTY + ClientDiagnosticPropertyData.DIAGNOSTIC_CONTEXT_SYMBOL_EQUAL + this.diagnosticCreationTimeUtc;
+    return DiagnosticPropertyData.DIAGNOSTIC_CONTEXT_CREATION_TIME_UTC_PROPERTY + DiagnosticPropertyData.DIAGNOSTIC_CONTEXT_SYMBOL_EQUAL + this.diagnosticCreationTimeUtc;
   }
 }

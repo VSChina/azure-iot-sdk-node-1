@@ -16,7 +16,7 @@ import * as SharedAccessSignature from './shared_access_signature.js';
 import { BlobUploadClient } from './blob_upload';
 import { DeviceMethodRequest, DeviceMethodResponse } from './device_method';
 import { Twin } from './twin';
-import { ClientDiagnostic } from './client_diagnostic';
+import { DiagnosticClient } from './client_diagnostic';
 
 /**
  * @private
@@ -70,7 +70,7 @@ export class Client extends EventEmitter {
   private _methodsEnabled: boolean;
 
   private _retryPolicy: RetryPolicy;
-  private _clientDiagnostic: ClientDiagnostic;
+  private _diagnosticClient: DiagnosticClient;
 
   /**
    * @constructor
@@ -96,7 +96,7 @@ export class Client extends EventEmitter {
     this.blobUploadClient = blobUploadClient;
 
     /* Codes_SRS_NODE_DEVICE_CLIENT_26_001: [The constructor shall initialize device client diagnostic] */
-    this._clientDiagnostic = new ClientDiagnostic();
+    this._diagnosticClient = new DiagnosticClient();
 
     this._transport = transport;
     this._transport.on('message', (msg) => {
@@ -264,7 +264,7 @@ export class Client extends EventEmitter {
    * @param {Function}                  sendEventCallback  The callback to be invoked when `sendEvent` completes execution.
    */
   sendEvent(message: Message, sendEventCallback?: (err?: Error, result?: results.MessageEnqueued) => void): void {
-    this._clientDiagnostic.addDiagnosticInfoIfNecessary(message);
+    this._diagnosticClient.addDiagnosticInfoIfNecessary(message);
     const retryOp = new RetryOperation(this._retryPolicy, this._maxOperationTimeout);
     retryOp.retry((opCallback) => {
       /*Codes_SRS_NODE_DEVICE_CLIENT_05_007: [The sendEvent method shall send the event indicated by the message argument via the transport associated with the Client instance.]*/
@@ -287,7 +287,7 @@ export class Client extends EventEmitter {
    */
   sendEventBatch(messages: Message[], sendEventBatchCallback?: (err?: Error, result?: results.MessageEnqueued) => void): void {
     for(let message of messages) {
-      this._clientDiagnostic.addDiagnosticInfoIfNecessary(message);
+      this._diagnosticClient.addDiagnosticInfoIfNecessary(message);
     }
     const retryOp = new RetryOperation(this._retryPolicy, this._maxOperationTimeout);
     retryOp.retry((opCallback) => {
@@ -502,7 +502,7 @@ export class Client extends EventEmitter {
   setDiagnosticSamplingPercentage(value: number): void {
     if (value !== null && typeof value !== 'undefined') {
       // Codes_SRS_NODE_DEVICE_CLIENT_26_002: ["SetDiagnosticSamplingPercentage" would set percentage].
-      this._clientDiagnostic.setDiagSamplingPercentage(value);
+      this._diagnosticClient.setDiagSamplingPercentage(value);
     }else {
       throw new errors.ArgumentError('Invalid diagnostic sampling percentage value.');
     }
