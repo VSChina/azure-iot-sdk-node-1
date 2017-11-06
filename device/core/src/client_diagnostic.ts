@@ -105,7 +105,7 @@ export class DiagnosticClient {
     let result: Boolean = false;
     // Codes_SRS_DEVICECLIENTDIAGNOSTIC_01_007: [This function shall return false if sampling percentage is set to 0.]
     if (this.diagSamplingPercentage > 0 && this.diagSamplingPercentage <= 100) {
-      if (this.currentMessageNumber == Number.MAX_VALUE) {
+      if (this.currentMessageNumber == 100) {
         this.currentMessageNumber = 0;
       }
       this.currentMessageNumber++;
